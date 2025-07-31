@@ -1,0 +1,129 @@
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f7f8fa;
+  margin: 0;
+  color: #222;
+}
+
+header {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1rem 0;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+.logo {
+  font-weight: 700;
+  font-size: 2rem;
+  color: #2b7a78;
+}
+nav a {
+  margin: 0 1rem;
+  text-decoration: none;
+  color: #222;
+  font-weight: 600;
+}
+nav a:hover {
+  color: #2b7a78;
+}
+.login {
+  background: #2b7a78;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.all-featured {
+  max-width: 1100px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  padding: 2rem;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+.section-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+}
+.section-header a {
+  color: #2b7a78;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.section-header a:hover {
+  text-decoration: underline;
+}
+.items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+.item {
+  background: #f2f6f7;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1.2rem;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.item img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.item:hover {
+  transform: translateY(-6px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(43,122,120,0.13);
+  cursor: pointer;
+}
+.item p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #222;
+}
+.item strong {
+  font-weight: 700;
+  color: #2b7a78;
+}
+.item small {
+  color: #555;
+}
+
+footer {
+  background: #fff;
+  padding: 1.5rem 0;
+  margin-top: 3rem;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+}
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+.footer-links a {
+  color: #2b7a78;
+  text-decoration: none;
+  font-weight: 600;
+}
+.footer-links a:hover {
+  text-decoration: underline;
+}
