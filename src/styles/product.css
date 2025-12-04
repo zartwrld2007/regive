@@ -56,6 +56,9 @@
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 /* Badge */
@@ -83,6 +86,8 @@
   height: 100%;
   object-fit: cover;
 }
+
+.image-placeholder { display:flex; align-items:center; justify-content:center; height:100%; background:#f5f5f5; color:#888; }
 
 .wishlist-btn {
   position: absolute;
@@ -120,6 +125,8 @@
   color: #444;
 }
 
+.stats-row .stat { color: #666; }
+
 .cond {
   background: #eafae1;
   padding: 3px 8px;
@@ -138,10 +145,14 @@
 }
 
 .price {
-  color: green;
+  color: #16a34a;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 700;
 }
+
+.price-free { color: #16a34a; font-weight:700; }
+
+.save-text { color: #16a34a; font-size: 12px; margin-top: 4px; }
 
 /* Load More */
 .load-more-btn {

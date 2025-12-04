@@ -1,120 +1,101 @@
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 import ProductCard from "../components/productcard";
 import "../styles/productDetails.css";
+import { getItem } from "../services/api";
 
-export default function ProductDetails({ products, handleAddToCart }) {
+export default function ProductDetails({ products = [], handleAddToCart }) {
   const { id } = useParams();
 
-  const productsdata = products
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    let mounted = true;
+    // try API first
+    getItem(id)
+      .then((data) => {
+        if (!mounted) return;
+        setProduct(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        // fallback: try to find in passed products prop
+        console.warn("API product fetch failed, falling back to local products", err);
+        const fallback = products.find((p) => String(p.id) === String(id));
+        if (mounted) {
+          if (fallback) setProduct(fallback);
+          else setError("Product not found");
+          setLoading(false);
+        }
+      });
 
+    return () => { mounted = false };
+  }, [id, products]);
 
+  if (loading) return <div className="details-wrapper">Loading...</div>;
+  if (error) return <div className="details-wrapper">{String(error)}</div>;
 
+  // determine main image and thumbnails safely
+  const mainImage = product?.image || (product?.images && product.images[0]) || product?.featured_image || product?.image_url || "";
+  const thumbnails = product?.images || (product?.image ? [product.image] : []) || [];
 
-  const relatedItems = [
-    {
-      title: "Modern Desk Lamp",
-      image: "../src/assets/images/lamp.webp", 
-      description: "A sleek and modern desk lamp that provides excellent lighting for your workspace.",
-      location: "Lagos",
-      distance: "3km",
-      price: "₦5,000",
-      oldPrice: "₦12,000",
-      condition: "Good",
-      likes: 89,
-      views: 19,
-      comments: 4,
-    },
-    {
-      title: "Travel Bag",
-      image: "../src/assets/images/travel bag.jpg",
-      description: "A durable and spacious travel bag perfect for weekend getaways or business trips.",
-      location: "Ibadan",
-      distance: "7km",
-      price: "Free",
-      condition: "Good",
-      likes: 16,
-      views: 112,
-      comments: 25,
-      status: "Free",
-    },
-    {
-      title: "Kids Bicycle",
-      image: "../src/assets/images/kids-bicycle.jpeg",
-      description: "A colorful and sturdy kids bicycle suitable for children aged 4-8 years.",
-      location: "Abuja",
-      distance: "5km",
-      price: "₦10,000",
-      oldPrice: "₦25,000",
-      condition: "Good",
-      likes: 94,
-      views: 12,
-      comments: 6,
-      status: "Reserved",
-    },
-  ];
+  const relatedItems = (products || [])
+    .filter((p) => String(p.id) !== String(id))
+    .slice(0, 4)
+    .map((p) => ({ id: p.id, title: p.title, image: p.image || (p.images && p.images[0]) }));
 
   return (
-    <>
-      {productsdata.map((product) => (
-        (product.id == id) ? (
-          <div className="details-wrapper">
-            {/* LEFT - IMAGES */}
-            <div className="details-left">
-              <img src={product.image} className="main-image" alt={product.title} />
+    <div className="details-wrapper">
+      {/* LEFT - IMAGES */}
+      <div className="details-left">
+        {mainImage ? (
+          <img src={mainImage} className="main-image" alt={product.title} />
+        ) : (
+          <div className="main-image placeholder">No image</div>
+        )}
 
-              <div className="thumbnail-row">
-                <img src={product.image} alt="" />
-                <img src={product.image} alt="" />
-                <img src={product.image} alt="" />
-              </div>
-            </div>
+        <div className="thumbnail-row">
+          {thumbnails.length > 0 ? (
+            thumbnails.slice(0, 4).map((t, i) => (
+              <img key={i} src={t} alt={`${product.title} ${i}`} />
+            ))
+          ) : (
+            <><img src={mainImage} alt="" /><img src={mainImage} alt="" /><img src={mainImage} alt="" /></>
+          )}
+        </div>
+      </div>
 
-            {/* RIGHT - PRODUCT DETAILS */}
-            <div className="details-right">
+      {/* RIGHT - PRODUCT DETAILS */}
+      <div className="details-right">
+        <h3>Description</h3>
+        <p className="description">{product.description}</p>
 
-              <h3>Description</h3>
-              <p className="description">{product.description}</p>
+        <h2>{product.title}</h2>
+        <p className="location">📍 {product.location} • {product.distance}</p>
 
-              <h2>{product.title}</h2>
-              <p className="location">
-                📍 {product.location} • {product.distance}
-              </p>
+        <div className="price-box">
+          {product.oldPrice && <p className="old-price">{product.oldPrice}</p>}
+          <p className="price">{product.price}</p>
+        </div>
 
-              <div className="price-box">
-                {product.oldPrice && (
-                  <p className="old-price">{product.oldPrice}</p>
-                )}
-                <p className="price">{product.price}</p>
-              </div>
+        <Link to="/cart" className="purchase-btn" onClick={() => handleAddToCart(product)}>
+          Proceed to Purchase
+        </Link>
+      </div>
 
-              {/* <Link to="/cart" className="purchase-btn">
-                 Proceed to Purchase
-              </Link> */}
-              <Link to="/cart" className="purchase-btn" 
-                onClick={() => handleAddToCart(product)}
-              >
-                 Proceed to Purchase
-              </Link>
-
-
-              
-            </div>
-
-            {/* RELATED ITEMS SECTION */}
-            <div className="related-section">
-              <h2>Similar Items</h2>
-              <div className="related-grid">
-                {relatedItems.map((item, index) => (
-                  <ProductCard key={index} {...item} />
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : ""
-      ))}
-    </>
+      {/* RELATED ITEMS SECTION */}
+      <div className="related-section">
+        <h2>Similar Items</h2>
+        <div className="related-grid">
+          {relatedItems.map((item) => (
+            <ProductCard key={item.id} {...item} />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
+              

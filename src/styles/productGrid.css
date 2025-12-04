@@ -1,0 +1,135 @@
+/* Additional styling for the Product Grid to match the screenshot provided */
+
+/* Section container tweaks */
+.product-section {
+  background: transparent; /* allow product.css to provide white box */
+  padding: 36px 28px;
+  max-width: 1200px;
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.product-header h2 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+}
+
+.product-header .subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280; /* gray-500 */
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header-buttons .filter-btn,
+.header-buttons .view-btn {
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.header-buttons .view-btn {
+  background: #fff;
+  color: #0f172a;
+  border: 1px solid #e6e6e6;
+}
+
+/* Grid layout */
+.product-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 1000px) {
+  .product-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .product-grid { grid-template-columns: 1fr; }
+}
+
+/* Card tweaks to mimic screenshot */
+.product-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(2,6,23,0.06);
+  transition: transform .14s ease, box-shadow .14s ease;
+  display: flex;
+  flex-direction: column;
+}
+.product-card:hover { transform: translateY(-6px); box-shadow: 0 18px 30px rgba(2,6,23,0.08); }
+
+/* Badge appearance (top-left) */
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(180deg,#22c55e,#16a34a);
+  color: white;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  z-index: 5;
+}
+
+/* Special badge variants */
+.badge.reserved { background: linear-gradient(180deg,#f59e0b,#f97316); }
+.badge.popular { background: linear-gradient(180deg,#06b6d4,#0891b2); }
+
+/* Heart button */
+.wishlist-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(2,6,23,0.08);
+}
+
+/* Image area */
+.product-image { height: 180px; background: #f7faf9; }
+.product-image img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* Info area */
+.product-info { padding: 14px 16px 18px; display:flex; flex-direction:column; gap:8px; }
+.product-title { font-size: 15px; margin:0; color: #0f172a; }
+.location { font-size: 12px; color: #6b7280; margin: 0; }
+
+.stats-row { display:flex; gap:10px; align-items:center; font-size:12px; color:#475569; }
+
+.price-section { margin-top: 6px; display:flex; gap:8px; align-items:baseline; }
+.price { color: #16a34a; font-weight:700; font-size:15px; }
+.price-free { color: #16a34a; font-weight:700; }
+.old-price { color:#9ca3af; text-decoration: line-through; font-size:12px; }
+.save-text { color:#16a34a; font-size:12px; }
+
+/* Related small UI pieces */
+.user-debug { margin-left: 8px; font-size:12px; color:#374151; }
+
+/* Load more button placement */
+.load-more-btn { margin-top: 18px; }
+
+/* small responsive tweaks */
+@media (max-width: 480px) {
+  .product-section { padding: 20px; }
+  .product-grid { gap: 14px; }
+  .product-card { border-radius: 10px; }
+}

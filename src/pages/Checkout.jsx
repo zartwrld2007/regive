@@ -1,8 +1,59 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/checkout.css";
+import { createOrder } from "../services/api";
 
-export default function Checkout() {
+export default function Checkout({ cartItems = [], clearCart = () => {} }) {
   const [payment, setPayment] = useState("card");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  // form fields state
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [zip, setZip] = useState("");
+
+  const handleCheckout = async () => {
+    setError(null);
+    if (!cartItems || cartItems.length === 0) {
+      setError("Your cart is empty.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Map cart items into a minimal payload the API is likely to accept
+      const itemsPayload = cartItems.map((it) => ({ item: it.id || it.item || it.product || null, quantity: it.qty || it.quantity || 1 }));
+
+      const payload = {
+        contact: { first_name: firstName, last_name: lastName, phone, email },
+        shipping_address: { address, city, zip },
+        payment_method: payment,
+        items: itemsPayload,
+        // attempt to include a total if you compute it locally
+        total: cartItems.reduce((sum, it) => sum + (Number(it.price) || 0) * (it.qty || 1), 0),
+      };
+
+      const res = await createOrder(payload);
+      // assume response contains order id in res.id
+      const orderId = res?.id || res?.order_id || res?.pk;
+      // clear local cart
+      clearCart();
+      // navigate to confirmation
+      if (orderId) navigate(`/order-confirmation/${orderId}`);
+      else navigate(`/order-confirmation/${res?.id || ""}`);
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || "Failed to create order");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="checkout-page">
@@ -15,13 +66,13 @@ export default function Checkout() {
           <h3>1. Contact Information</h3>
 
           <div className="grid-2">
-            <input type="text" placeholder="First Name" />
-            <input type="text" placeholder="Last Name" />
+            <input value={firstName} onChange={(e) => setFirstName(e.target.value)} type="text" placeholder="First Name" />
+            <input value={lastName} onChange={(e) => setLastName(e.target.value)} type="text" placeholder="Last Name" />
           </div>
 
           <div className="grid-2">
-            <input type="text" placeholder="Phone Number" />
-            <input type="email" placeholder="Email Address" />
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} type="text" placeholder="Phone Number" />
+            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email Address" />
           </div>
         </div>
 
@@ -37,12 +88,12 @@ export default function Checkout() {
           <div className="grid-3">
             <input type="text" placeholder="dd - mm - yyyy" />
             <input type="text" placeholder="1pm - 6pm" />
-            <input type="text" placeholder="City" />
+            <input value={city} onChange={(e) => setCity(e.target.value)} type="text" placeholder="City" />
           </div>
 
           <div className="grid-2">
-            <input type="text" placeholder="Address" />
-            <input type="text" placeholder="Zip Code" />
+            <input value={address} onChange={(e) => setAddress(e.target.value)} type="text" placeholder="Address" />
+            <input value={zip} onChange={(e) => setZip(e.target.value)} type="text" placeholder="Zip Code" />
           </div>
         </div>
 
@@ -105,12 +156,12 @@ export default function Checkout() {
 
         <div className="summary-row">
           <span>Subtotal:</span>
-          <span>$139</span>
+          <span>${cartItems.reduce((s, it) => s + (Number(it.price) || 0) * (it.qty || 1), 0)}</span>
         </div>
 
         <div className="summary-row">
           <span>Discount:</span>
-          <span className="discount">-$70</span>
+          <span className="discount">$0</span>
         </div>
 
         <div className="summary-row">
@@ -120,10 +171,12 @@ export default function Checkout() {
 
         <div className="summary-total">
           <span>Total</span>
-          <span>$69</span>
+          <span>${cartItems.reduce((s, it) => s + (Number(it.price) || 0) * (it.qty || 1), 0)}</span>
         </div>
 
-        <button className="checkout-btn">Checkout</button>
+        <button className="checkout-btn" onClick={handleCheckout} disabled={loading}>{loading ? 'Processing...' : 'Checkout'}</button>
+
+        {error && <p style={{color:'red'}}>{error}</p>}
 
         <p className="terms">
           By confirming the order, you accept the terms of use.

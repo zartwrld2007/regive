@@ -13,15 +13,29 @@ export default function SignInPage() {
     // Accept either a location.state.from string or an object with pathname
     const from = (location.state && (location.state.from?.pathname || location.state.from)) || "/";
 
-    const handleSubmit = (e) => {
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
         e?.preventDefault();
+        setError(null);
+        setLoading(true);
 
-        // In a real app you'd validate/submit to backend. Here we simulate login.
-        const userData = { email };
-        auth.login(userData);
+        try {
+            // Call the auth context signIn which talks to the API
+            const result = await auth.signIn({ email, password });
 
-        // Redirect to the page the user tried to access (e.g. /checkout)
-        navigate(from, { replace: true });
+            // If signIn returned a token/user, navigate to the original page
+            if (result?.token || result?.user) {
+                navigate(from, { replace: true });
+            } else {
+                setError('Login failed: invalid credentials');
+            }
+        } catch (err) {
+            setError(err?.message || 'Login failed');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -32,6 +46,16 @@ export default function SignInPage() {
                     Create an account to start sharing, discovering items, and connecting
                     with the community.
                 </p>
+
+                {/* If already signed in, show a clear confirmation */}
+                {auth?.user && (
+                    <div className="signed-in-box">
+                        <p>You are signed in as <strong>{auth.user?.email || auth.user?.username || JSON.stringify(auth.user)}</strong>.</p>
+                        <div style={{display: 'flex', gap: '8px'}}>
+                            <button className="signin-btn" onClick={() => navigate('/')}>Go Home</button>
+                        </div>
+                    </div>
+                )}
 
                 <div className="signin-toggle">
                     <Link to="/signin" className="toggle-btn active">Login</Link>
@@ -53,7 +77,9 @@ export default function SignInPage() {
                         <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Create a password" />
                     </div>
 
-                    <button className="signin-btn">Sign In</button>
+                    <button className="signin-btn" disabled={loading}>{loading ? 'Signing in...' : 'Sign In'}</button>
+
+                    {error && <div className="form-error" style={{color: 'crimson', marginTop: '8px'}}>{error}</div>}
                 </form>
 
                 <div className="divider">

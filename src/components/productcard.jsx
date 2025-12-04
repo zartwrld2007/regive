@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import "./../styles/product.css";
+import placeholder from "../assets/images/electronics.avif";
 
 export default function ProductCard({
   id,
@@ -15,6 +16,18 @@ export default function ProductCard({
   views,
   comments
 }) {
+  // derive display values
+  const isFree = price === 0 || price === '0' || String(price).toLowerCase() === 'free' || price === null || price === undefined;
+  let priceDisplay = isFree ? 'Free' : (price ?? '—');
+  let saveText = null;
+  try {
+    const p = parseFloat(String(price).replace(/[^0-9.-]+/g, ''));
+    const o = parseFloat(String(oldPrice).replace(/[^0-9.-]+/g, ''));
+    if (!isNaN(p) && !isNaN(o) && o > p) {
+      const save = o - p;
+      saveText = `Save ${new Intl.NumberFormat().format(save)}`;
+    }
+  } catch (e) {}
   return (
     <Link to={`/product/${id}`} className="product-card-link">
       <div className="product-card">
@@ -24,7 +37,11 @@ export default function ProductCard({
 
         {/* Image */}
         <div className="product-image">
-          <img src={image} alt={title} />
+          {image ? (
+            <img src={image} alt={title} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = placeholder; }} />
+          ) : (
+            <img src={placeholder} alt="placeholder" />
+          )}
           <button className="wishlist-btn">♡</button>
         </div>
 
@@ -38,16 +55,17 @@ export default function ProductCard({
 
           {/* Ratings row */}
           <div className="stats-row">
-            <span className="cond">{condition}</span>
-            <span>❤️ {likes}</span>
-            <span>👁 {views}</span>
-            <span>💬 {comments}</span>
+            {condition && <span className="cond">{condition}</span>}
+            <span className="stat">❤️ {likes ?? 0}</span>
+            <span className="stat">👁 {views ?? 0}</span>
+            <span className="stat">💬 {comments ?? 0}</span>
           </div>
 
           {/* Prices */}
           <div className="price-section">
             {oldPrice && <p className="old-price">{oldPrice}</p>}
-            <p className="price">{price}</p>
+            <p className={`price ${isFree ? 'price-free' : ''}`}>{priceDisplay}</p>
+            {saveText && <p className="save-text">{saveText}</p>}
           </div>
 
         </div>

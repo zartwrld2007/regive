@@ -51,16 +51,17 @@
 .signin-btn {
   background: #0f3e1d;      /* give it a background so sizes match */
   border: none;
-  padding: 10px 22px;
+  padding: 12px 24px; /* slightly larger and balanced */
   border-radius: 10px;
   color: white;
   font-weight: 500;
   font-size: 15px;
   cursor: pointer;
   text-align: center;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-width: 120px; /* ensure visible width */
 }
 
 /* GET STARTED BUTTON */
@@ -68,16 +69,17 @@
   background: #f79340;
   color: white;
   border: none;
-  padding: 12px 26px;   /* Increased padding */
+  padding: 12px 24px;   /* match signin padding */
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
   font-size: 15px;      /* Optional */
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   line-height: 1;       /* Prevents vertical overflow */
   height: auto;
+  min-width: 140px; /* make primary CTA wider */
 }
 
 .start-btn:hover {

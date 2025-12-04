@@ -33,6 +33,7 @@ export default function Navbar({cartItems}) {
           <>
             <button className="signin-btn" onClick={handleLogout}>Sign Out</button>
             <Link to="/" className="start-btn">Profile</Link>
+            <span className="user-debug">{auth.user?.email || auth.user?.username || JSON.stringify(auth.user)}</span>
           </>
         ) : (
           <>

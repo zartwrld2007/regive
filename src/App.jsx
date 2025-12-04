@@ -1,5 +1,5 @@
 import { Routes, Route, BrowserRouter } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Navbar from "./components/navbar.jsx";
 
@@ -10,6 +10,7 @@ import CartPage from "../src/pages/CartPage.jsx";
 
 import Checkout from "./pages/Checkout.jsx";
 import { RequireAuth } from "./contexts/AuthContext.jsx";
+import OrderConfirmation from "./pages/OrderConfirmation.jsx";
 
 import About from "./pages/About.jsx";
 
@@ -19,22 +20,39 @@ import ProductDetails from "./pages/ProductDetails.jsx";
 
 import Home from "./pages/Home.jsx";
 
+import { getPublicItems } from "./services/api";
+
 // import "./styles/navbar.css";
 
 // import "../src/styles/cart.css"
 
 export default function App() {
 
-  const products = [
-    { id: 1, title: "Vintage Wooden Chair", image: "/src/assets/images/wooden-chair.jpg",description: "", location: "Lagos, Nigeria", distance: "3km away", price: 0, status: "Hot Deal", condition: "Good", likes: 127, views: 18, comments: 3, qty: 1, },
-    { id: 2, title: "Kids Bicycle", image: "/src/assets/images/kids-bicycle.jpeg",description: "A lightweight kids’ bicycle designed for easy riding, balance, and fun outdoor adventures.", location: "Abuja, Nigeria", distance: "5km away", price: 10000, oldPrice: "₦25,000", status: "Reserved", condition: "Good", likes: 94, views: 12, comments: 6, qty: 1, },
-    { id: 3, title: "Kitchen Blender", image: "/src/assets/images/blender.jpeg",description: "", location: "Port Harcourt", distance: "11km away", price: 0, condition: "Like New", likes: 189, views: 26, comments: 25, status: "Free", qty: 1, },
-    { id: 4, title: "Modern Desk Lamp", image: "/src/assets/images/lamp.webp",description: "", location: "Lagos Nigeria", distance: "3km away", price: 5000, oldPrice: "₦12,000", condition: "Good", likes: 189, views: 26, comments: 25, qty: 1, },
-    { id: 5, title: "Travel Bag", image: "/src/assets/images/travel bag.jpg",description: "", location: "Ibadan Nigeria", distance: "7km away", price: 0, condition: "Good", likes: 16, views: 112, comments: 25, status: "Free", qty: 1, },
-    { id: 6, title: "Educational Books Set", image: "/src/assets/images/books.jpg",description: "", location: "Enugu Nigeria", distance: "4km away", price: 0, condition: "Excellent", likes: 21, views: 143, comments: 25, status: "Free", qty: 1, }
-  ];
-
+  const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    getPublicItems()
+      .then((data) => {
+        // normalize API response: some backends return { results: [...] } or { items: [...] }
+        let items = [];
+        if (Array.isArray(data)) items = data;
+        else if (data?.results && Array.isArray(data.results)) items = data.results;
+        else if (data?.items && Array.isArray(data.items)) items = data.items;
+        else if (data?.data && Array.isArray(data.data)) items = data.data;
+        else {
+          // fallback: if data looks like an object with numeric keys, try to map values
+          console.log('[App] getPublicItems returned unexpected shape:', data);
+        }
+
+        if (mounted) setProducts(items);
+      })
+      .catch((err) => {
+        console.error("Failed to load products:", err);
+      });
+    return () => { mounted = false };
+  }, []);
 
   const handleAddToCart =(product) => {
     const isProductInCart = cartItems.find((item) => item.id === product.id);
@@ -90,7 +108,10 @@ export default function App() {
         <Route path="/about" element={<About />} />
 
         {/* 💳 CHECKOUT PAGE (protected) */}
-        <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
+        <Route path="/checkout" element={<RequireAuth><Checkout cartItems={cartItems} clearCart={() => setCartItems([])} /></RequireAuth>} />
+
+        {/* Order confirmation */}
+        <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />
 
         {/* 🛡️ SAFETY PAGE */}
         <Route path="/safety" element={<SafetyPage />} />
